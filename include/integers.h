@@ -50,5 +50,6 @@ int sprint_hex(const mprec_int *integer, char *buf, size_t buf_size);
 bool integer_from_dec(mprec_int *mem, const char *dec);
 
 bool int_div(mprec_int *q, mprec_int *r, const mprec_int *a, const mprec_int *b);
+inline bool int_mod(mprec_int *r, const mprec_int *a, const mprec_int *b) { return int_div(NULL, r, a, b); };
 
 #endif

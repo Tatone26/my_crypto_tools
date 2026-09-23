@@ -11,21 +11,29 @@
 /// @return -1 if a < b, 0 if a == b and 1 if a > b
 int int_cmp(const mprec_int *a, const mprec_int *b)
 {
+    if (!a || !b)
+        return 0;
+
     int max_n = a->size > b->size ? a->size : b->size;
     int min_n = a->size > b->size ? b->size : a->size;
+
     if (max_n != min_n)
     {
         if (a->size == max_n)
         {
-            for (int j = max_n; j >= min_n; j--)
+            for (int j = max_n - 1; j >= min_n; j--)
+            {
                 if (a->d[j] != 0)
                     return 1;
+            }
         }
-        else if (b->size == max_n)
+        else
         {
-            for (int j = max_n; j >= min_n; j--)
+            for (int j = max_n - 1; j >= min_n; j--)
+            {
                 if (b->d[j] != 0)
                     return -1;
+            }
         }
     }
 
@@ -33,13 +41,12 @@ int int_cmp(const mprec_int *a, const mprec_int *b)
     {
         uint64_t a_v = a->d[i];
         uint64_t b_v = b->d[i];
-        if (a_v == b_v)
-            continue;
         if (a_v < b_v)
             return -1;
-        if (b_v < a_v)
+        if (a_v > b_v)
             return 1;
     }
+
     return 0;
 }
 
@@ -216,6 +223,9 @@ bool int_bit_check(const mprec_int *a, const uint64_t k)
 /// @brief set the k-th bit to value
 void int_bit_set(mprec_int *a, const uint64_t k, bool value)
 {
+    if (!a || !a->d || k >= (uint64_t)a->size * 64)
+        return;
+
     if (value)
         a->d[k / 64] |= 1ULL << (k % 64);
     else
