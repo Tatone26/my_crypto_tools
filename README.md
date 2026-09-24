@@ -5,9 +5,9 @@ I was interested in low-level multi-precision arithmetic, as well as cryptograph
 This seemed like the perfect project: **build my own little toolkit, with every mathematical method understood and cleanly written, spaning over every subject of my semester**.
 
 I decided not to use GMP because it is the occasion to try to understand how this kind of arithmetics work, as well as implementing interesting algorithms.
-Benchmarks and checks are still done against this library.
+Benchmarks and checks are still done against this library. Obviously, that make all the code really, really slow. Run the benchmarks to have some ideas of where the bottlenecks are.
 
-I may, for heavy cryptographic attacks, use parallelization with  **OpenMP** or **MPI**.
+I may, for heavy cryptographic attacks, try to use parallelization with  **OpenMP** or **MPI**.
 
 The cryptographic attacks I will setup are principally made to solve problems in a sort of game our professor gave us. This can explain the specifics of what is implemented.
 

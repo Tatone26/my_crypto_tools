@@ -1,25 +1,16 @@
 #include "colors.h"
+#include "tests.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <string.h>
 
-// Forward declarations
-int run_mprec_core_tests(void);
-int run_mprec_adv_tests(void);
-int run_random_tests(void);
-
-// ============================================================================
-// MENU ENGINE
-// ============================================================================
-
-typedef struct MenuItem
+typedef struct
 {
     const char *label;
     void (*action)(void);
 } MenuItem;
 
-typedef struct Menu
+typedef struct
 {
     const char *title;
     const char *subtitle;
@@ -82,7 +73,6 @@ static void run_menu(const Menu *menu)
     {
         draw_menu(menu);
         int choice = get_input();
-
         if (choice == -1)
             continue;
         if (choice == 0)
@@ -96,8 +86,7 @@ static void run_menu(const Menu *menu)
             }
             else
             {
-                printf("\033[H\033[2J");
-                printf("\n  " BADGE_INFO BRIGHT_YELLOW "Module not yet implemented.\n" RESET);
+                printf("\033[H\033[2J\n  " BADGE_INFO BRIGHT_YELLOW "Module not yet implemented.\n" RESET);
                 wait_for_enter();
             }
         }
@@ -109,33 +98,23 @@ static void run_menu(const Menu *menu)
     }
 }
 
-// ============================================================================
-// ACTIONS & MENUS
-// ============================================================================
+static void action_run(int (*suite_fn)(void))
+{
+    printf("\033[H\033[2J");
+    suite_fn();
+    wait_for_enter();
+}
 
-static void action_core(void)
-{
-    printf("\033[H\033[2J");
-    run_mprec_core_tests();
-    wait_for_enter();
-}
-static void action_adv(void)
-{
-    printf("\033[H\033[2J");
-    run_mprec_adv_tests();
-    wait_for_enter();
-}
-static void action_rand(void)
-{
-    printf("\033[H\033[2J");
-    run_random_tests();
-    wait_for_enter();
-}
+static void action_core(void) { action_run(run_mprec_core_tests); }
+static void action_adv(void) { action_run(run_mprec_adv_tests); }
+static void action_eea(void) { action_run(run_mprec_eea_tests); }
+static void action_rand(void) { action_run(run_random_tests); }
 
 static const MenuItem bench_items[] = {
     {"mprec Core Arithmetic & I/O Validation", action_core},
     {"mprec Division & Modular Exponentiation", action_adv},
-    {"Random Number Generation & Statistics", action_rand},
+    {"mprec Extended Euclidean Algorithm & Inversion", action_eea},
+    {"Random Number Generation & Primality (Miller-Rabin)", action_rand},
 };
 
 static void menu_benchmarks(void)
@@ -185,8 +164,6 @@ int main(void)
         .is_root = true};
 
     run_menu(&root_menu);
-
-    printf("\033[H\033[2J");
-    printf(BRIGHT_CYAN "Exiting crypto toolsuite.\n" RESET);
+    printf("\033[H\033[2J" BRIGHT_CYAN "Exiting crypto toolsuite.\n" RESET);
     return 0;
 }

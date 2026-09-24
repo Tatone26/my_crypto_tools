@@ -51,5 +51,9 @@ bool integer_from_dec(mprec_int *mem, const char *dec);
 
 bool int_div(mprec_int *q, mprec_int *r, const mprec_int *a, const mprec_int *b);
 inline bool int_mod(mprec_int *r, const mprec_int *a, const mprec_int *b) { return int_div(NULL, r, a, b); };
+bool int_exp_mod(mprec_int *r, const mprec_int *a, const mprec_int *k, const mprec_int *N);
+
+bool eea(mprec_int *g, mprec_int *u, bool *sign_u, mprec_int *v, bool *sign_v, const mprec_int *a, const mprec_int *b);
+inline bool gcd(mprec_int *g, const mprec_int *a, const mprec_int *b) { return eea(g, NULL, NULL, NULL, NULL, a, b); };
 
 #endif

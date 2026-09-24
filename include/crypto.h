@@ -6,5 +6,6 @@
 void random_number(mprec_int *mem, int bits);
 void random_odd_number(mprec_int *mem, int bits);
 bool miller_rabin(mprec_int *num, int k);
+void random_prime(mprec_int *m, int bits);
 
 #endif

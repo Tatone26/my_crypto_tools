@@ -5,10 +5,12 @@
 #include "integers.h"
 #include "crypto.h"
 #include <gmp.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <time.h>
+#include <math.h>
 
 // Core Function Signatures
 typedef bool (*bin_fn_t)(mprec_int *r, const mprec_int *a, const mprec_int *b);
@@ -37,16 +39,39 @@ typedef struct
     void *gmp_fn;
 } FuncEntry;
 
+// Statistical Result Container
+typedef struct
+{
+    double mean_ns;
+    double stddev_ns;
+    double min_ns;
+} BenchStats;
+
+// Statistical Calculation Utility
+void compute_stats(const double *samples, int count, BenchStats *out);
+
 // Generic Test Drivers
 int driver_fuzz_bin(const char *name, int iters, bin_fn_t fn, gmp_bin_fn_t gmp_fn);
 int driver_fuzz_tern(const char *name, int iters, tern_fn_t fn, gmp_tern_fn_t gmp_fn);
 int driver_fuzz_shift(const char *name, int iters, shift_fn_t fn, gmp_shift_fn_t gmp_fn);
 
-// Generic Benchmark Drivers
-void driver_bench_bin(bin_fn_t fn, gmp_bin_fn_t gmp_fn, int bits, int iters, double *mprec_ns, double *gmp_ns);
-void driver_bench_tern(tern_fn_t fn, gmp_tern_fn_t gmp_fn, int bits, int iters, double *mprec_ns, double *gmp_ns);
-void driver_bench_shift(shift_fn_t fn, gmp_shift_fn_t gmp_fn, int bits, int iters, double *mprec_ns, double *gmp_ns);
+// Generic Benchmark Drivers with Multi-Sample Statistics
+void driver_bench_bin(bin_fn_t fn, gmp_bin_fn_t gmp_fn, int bits, int iters, BenchStats *mprec_st, BenchStats *gmp_st);
+void driver_bench_tern(tern_fn_t fn, gmp_tern_fn_t gmp_fn, int bits, int iters, BenchStats *mprec_st, BenchStats *gmp_st);
+void driver_bench_shift(shift_fn_t fn, gmp_shift_fn_t gmp_fn, int bits, int iters, BenchStats *mprec_st, BenchStats *gmp_st);
 
+// Diagnostic & UI Printing
+void print_diag_hex(const char *label, const mprec_int *m);
+void print_suite_header(const char *title, const char *color);
+void print_bench_header(int bits);
+void print_bench_row(const char *name, const BenchStats *mprec_st, const BenchStats *gmp_st);
+void print_suite_summary(int total_fails);
+
+// Generic Registry Runners
+int run_registry_tests(const FuncEntry *registry, int count);
+void run_registry_benchmarks(const FuncEntry *registry, int count, int bits);
+
+// Timing & Conversion
 static inline void mprec_to_gmp(mpz_t g, const mprec_int *m)
 {
     mpz_import(g, m->size, -1, 8, 0, 0, m->d);
@@ -59,9 +84,15 @@ static inline double get_ns(void)
 
 bool gmp_equals_mprec(const mpz_t g, const mprec_int *m);
 
-inline void fill_random(mprec_int *m)
+static inline void fill_random(mprec_int *m)
 {
-    random_number(m, m->size);
+    random_number(m, m->size * 64);
 }
+
+// Suite Entry Points
+int run_mprec_core_tests(void);
+int run_mprec_adv_tests(void);
+int run_mprec_eea_tests(void);
+int run_random_tests(void);
 
 #endif // TESTS_H
