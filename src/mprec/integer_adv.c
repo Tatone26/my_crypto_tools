@@ -136,52 +136,9 @@ bool int_div(mprec_int *q, mprec_int *r, const mprec_int *a, const mprec_int *b)
     return true;
 }
 
-static bool exp_mod_recurse(mprec_int *r, const mprec_int *a, const mprec_int *k, const mprec_int *N, mprec_int *mul)
-{
-    // Base case: k == 0 => 1
-    if (int_bit_length(k) == 0)
-    {
-        for (int i = 0; i < r->size; i++)
-            r->d[i] = 0;
-
-        if (!(int_bit_length(N) == 1 && int_bit_check(N, 0)))
-            r->d[0] = 1ULL;
-
-        return true;
-    }
-
-    // k is even: a^k = (a^(k/2))^2 mod N
-    if ((k->d[0] & 1ULL) == 0)
-    {
-        INTEGER_STACK_ALLOC(khalf, k->size * 64);
-        INTEGER_STACK_ALLOC(ahalfk, N->size * 64);
-
-        int_rshift(&khalf, k, 1);
-        exp_mod_recurse(&ahalfk, a, &khalf, N, mul);
-
-        int_mul_add(mul, &ahalfk, &ahalfk, NULL);
-        int_div(NULL, r, mul, N);
-    }
-    // k is odd: a^k = (a * a^(k-1)) mod N
-    else
-    {
-        INTEGER_STACK_ALLOC(kminusone, k->size * 64);
-        INTEGER_STACK_ALLOC(apower, N->size * 64);
-        U64_TO_MPREC(one, 1);
-
-        int_sub(&kminusone, k, &one);
-        exp_mod_recurse(&apower, a, &kminusone, N, mul);
-
-        int_mul_add(mul, &apower, a, NULL);
-        int_div(NULL, r, mul, N);
-    }
-
-    return true;
-}
-
 bool int_exp_mod(mprec_int *r, const mprec_int *a, const mprec_int *k, const mprec_int *N)
 {
-    if (!r || !a || !k || !N || int_bit_length(N) == 0)
+    if (!a || !r || !k || !N || int_bit_length(N) == 0)
         return false;
 
     // Edge case: N == 1 => anything mod 1 is 0
@@ -192,21 +149,39 @@ bool int_exp_mod(mprec_int *r, const mprec_int *a, const mprec_int *k, const mpr
         return true;
     }
 
-    // Allocate single shared buffer for products: (2 * N->size) limbs
-    int max_limbs = (a->size > N->size ? a->size : N->size);
-    INTEGER_STACK_ALLOC(shared_mul, max_limbs * 2 * 64);
+    INTEGER_STACK_ALLOC(res_m, N->size * 64);
+    for (int i = 0; i < res_m.size; i++)
+        res_m.d[i] = 0;
+    res_m.d[0] = 1ULL;
 
-    // If a >= N, reduce first: a_mod = a % N
+    INTEGER_STACK_ALLOC(temp_m, N->size * 2 * 64);
+
     INTEGER_STACK_ALLOC(a_mod, N->size * 64);
-    if (int_cmp(a, N) >= 0)
+    int_mod(&a_mod, a, N);
+
+    mprec_int *res = &res_m;
+    mprec_int *temp = &temp_m;
+
+    int total_bits = (int)int_bit_length(k);
+    for (int i = total_bits - 1; i >= 0; i--)
     {
-        int_div(NULL, &a_mod, a, N);
-    }
-    else
-    {
-        for (int i = 0; i < a_mod.size; i++)
-            a_mod.d[i] = (i < a->size) ? a->d[i] : 0;
+        // res = (res * res) % N
+        int_mul_add(temp, res, res, NULL);
+        int_mod(res, temp, N);
+
+        if (int_bit_check(k, i))
+        {
+            // res = (res * a_mod) % N
+            int_mul_add(temp, res, &a_mod, NULL);
+            int_mod(res, temp, N);
+        }
     }
 
-    return exp_mod_recurse(r, &a_mod, k, N, &shared_mul);
+    int copy_limbs = r->size < res->size ? r->size : res->size;
+    for (int i = 0; i < copy_limbs; i++)
+        r->d[i] = res->d[i];
+    for (int i = copy_limbs; i < r->size; i++)
+        r->d[i] = 0;
+
+    return true;
 }

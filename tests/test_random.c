@@ -146,7 +146,7 @@ static int test_miller_rabin_accuracy_against_gmp(int iterations)
 
 static void bench_random_suite(int bits)
 {
-    print_bench_header(bits);
+    print_bench_header(bits, "GMP");
     INTEGER_STACK_ALLOC(r, bits);
 
     // 1. Random Number Gen

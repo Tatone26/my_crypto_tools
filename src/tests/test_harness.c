@@ -58,11 +58,15 @@ void print_suite_header(const char *title, const char *color)
     printf("%s└────────────────────────────────────────────────────────────────────────────────────────┘\n\n" RESET, color);
 }
 
-void print_bench_header(int bits)
+void print_bench_header(int bits, const char *oracle_name)
 {
+    const char *ref = (oracle_name && oracle_name[0]) ? oracle_name : "GMP";
+    char ref_col[64];
+    snprintf(ref_col, sizeof(ref_col), "              %-4s (ns)               ", ref);
+
     printf("\n  " BOLD MAGENTA "── Benchmark Profile: %d-bit Operands ──" RESET "\n\n", bits);
-    printf("  " BOLD WHITE "%-21s" RESET "│" BOLD CYAN "              mprec (ns)              " RESET "│" BRIGHT_PURPLE "               GMP (ns)               " RESET "│" BOLD YELLOW "   RATIO   " RESET "\n", "OPERATION");
-    printf("                       │" CYAN "    Avg     │    Best    │     ±σ     " RESET "│" BRIGHT_PURPLE "    Avg     │    Best    │     ±σ     " RESET "│" YELLOW " (vs GMP)  " RESET "\n");
+    printf("  " BOLD WHITE "%-21s" RESET "│" BOLD CYAN "              mine (ns)               " RESET "│" BRIGHT_PURPLE "%-37s" RESET "│" BOLD YELLOW "   RATIO   " RESET "\n", "OPERATION", ref_col);
+    printf("                       │" CYAN "    Avg     │    Best    │     ±σ     " RESET "│" BRIGHT_PURPLE "    Avg     │    Best    │     ±σ     " RESET "│" YELLOW " (vs %-4s) " RESET "\n", ref);
     printf(DIM BRIGHT_BLACK "  ─────────────────────┼────────────┼────────────┼────────────┼────────────┼────────────┼────────────┼───────────\n" RESET);
 }
 
@@ -421,9 +425,9 @@ int run_registry_tests(const FuncEntry *registry, int count)
     return total_failures;
 }
 
-void run_registry_benchmarks(const FuncEntry *registry, int count, int bits)
+void run_registry_benchmarks(const FuncEntry *registry, int count, int bits, const char *adv_name)
 {
-    print_bench_header(bits);
+    print_bench_header(bits, adv_name);
     for (int i = 0; i < count; i++)
     {
         const FuncEntry *e = &registry[i];

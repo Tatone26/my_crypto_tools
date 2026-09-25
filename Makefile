@@ -1,6 +1,6 @@
 CC ?= gcc
-CFLAGS = -Wall -Wextra -g -O3 -std=c23 -Iinclude -Isrc/mprec
-LDFLAGS = -lgmp -lm
+CFLAGS = -fopenmp -Wall -Wextra -g -O3 -std=c23 -Iinclude -Isrc/mprec
+LDFLAGS = -lgmp -lcrypto -lm -fopenmp
 
 # Directories
 TEMP_DIR = temp

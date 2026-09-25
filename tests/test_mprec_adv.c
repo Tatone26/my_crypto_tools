@@ -35,8 +35,8 @@ int run_mprec_adv_tests(void)
 
     if (fails == 0)
     {
-        run_registry_benchmarks(adv_registry, adv_registry_count, 256);
-        run_registry_benchmarks(adv_registry, adv_registry_count, 512);
+        run_registry_benchmarks(adv_registry, adv_registry_count, 256, "GMP");
+        run_registry_benchmarks(adv_registry, adv_registry_count, 512, "GMP");
     }
     return fails;
 }

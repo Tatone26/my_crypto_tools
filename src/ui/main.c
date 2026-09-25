@@ -120,7 +120,7 @@ static const MenuItem bench_items[] = {
 static void menu_benchmarks(void)
 {
     const Menu menu = {
-        .title = "TESTS & BENCHMARKS",
+        .title = "CORE TESTS & BENCHMARKS",
         .subtitle = "Differential fuzzing & performance micro-benchmarks",
         .border_color = BRIGHT_PURPLE,
         .items = bench_items,
@@ -129,17 +129,19 @@ static void menu_benchmarks(void)
     run_menu(&menu);
 }
 
+static void action_aes(void) { action_run(run_aes_tests); }
+
 static const MenuItem crypto_items[] = {
-    {"Miller-Rabin Primality Test (placeholder)", NULL},
-    {"RSA Wiener Attack (placeholder)", NULL},
-    {"RSA Common Modulus Attack (placeholder)", NULL},
+    {"AES-128", action_aes},
+    // {"RSA Wiener Attack (placeholder)", NULL},
+    // {"RSA Common Modulus Attack (placeholder)", NULL},
 };
 
-static void menu_crypto(void)
+static void menu_crypto_bench(void)
 {
     const Menu menu = {
-        .title = "CRYPTANALYSIS & ATTACKS",
-        .subtitle = "CTF Solvers & Cryptographic Primitives",
+        .title = "CRYPTO TESTS & BENCHMARKS",
+        .subtitle = "",
         .border_color = BRIGHT_BLUE,
         .items = crypto_items,
         .count = sizeof(crypto_items) / sizeof(crypto_items[0]),
@@ -148,8 +150,8 @@ static void menu_crypto(void)
 }
 
 static const MenuItem root_items[] = {
-    {"Tests & Benchmarks", menu_benchmarks},
-    {"Cryptanalysis & CTF Attacks", menu_crypto},
+    {"Core Tests & Benchmarks", menu_benchmarks},
+    {"Crypto Test & Benchmarks", menu_crypto_bench},
     {"Interactive REPL Sandbox (placeholder)", NULL},
 };
 

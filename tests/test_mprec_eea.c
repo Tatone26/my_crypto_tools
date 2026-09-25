@@ -37,8 +37,8 @@ int run_mprec_eea_tests(void)
 
     if (fails == 0)
     {
-        run_registry_benchmarks(eea_registry, eea_registry_count, 256);
-        run_registry_benchmarks(eea_registry, eea_registry_count, 512);
+        run_registry_benchmarks(eea_registry, eea_registry_count, 256, "GMP");
+        run_registry_benchmarks(eea_registry, eea_registry_count, 512, "GMP");
     }
     return fails;
 }

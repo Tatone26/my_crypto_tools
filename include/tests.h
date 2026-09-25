@@ -63,13 +63,13 @@ void driver_bench_shift(shift_fn_t fn, gmp_shift_fn_t gmp_fn, int bits, int iter
 // Diagnostic & UI Printing
 void print_diag_hex(const char *label, const mprec_int *m);
 void print_suite_header(const char *title, const char *color);
-void print_bench_header(int bits);
+void print_bench_header(int bits, const char *oracle_name);
 void print_bench_row(const char *name, const BenchStats *mprec_st, const BenchStats *gmp_st);
 void print_suite_summary(int total_fails);
 
 // Generic Registry Runners
 int run_registry_tests(const FuncEntry *registry, int count);
-void run_registry_benchmarks(const FuncEntry *registry, int count, int bits);
+void run_registry_benchmarks(const FuncEntry *registry, int count, int bits, const char *adv_name);
 
 // Timing & Conversion
 static inline void mprec_to_gmp(mpz_t g, const mprec_int *m)
@@ -94,5 +94,6 @@ int run_mprec_core_tests(void);
 int run_mprec_adv_tests(void);
 int run_mprec_eea_tests(void);
 int run_random_tests(void);
+int run_aes_tests(void);
 
 #endif // TESTS_H

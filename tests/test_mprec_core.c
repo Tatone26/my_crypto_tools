@@ -215,9 +215,9 @@ int run_mprec_core_tests(void)
     {
         for (int bits = 256; bits <= 2048; bits *= 2)
         {
-            print_bench_header(bits);
+            print_bench_header(bits, "GMP");
             bench_micro_ops(bits, 1000000);
-            run_registry_benchmarks(core_registry, core_registry_count, bits);
+            run_registry_benchmarks(core_registry, core_registry_count, bits, "GMP");
         }
     }
     return fails;
